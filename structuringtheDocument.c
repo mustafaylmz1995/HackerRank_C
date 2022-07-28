@@ -19,12 +19,10 @@ struct paragraph {
     int sentence_count;//denotes number of sentences in a paragraph
 };
 
-
 struct document {
     struct paragraph* data;
     int paragraph_count;//denotes number of paragraphs in a document
 };
-
 
 char ** strtoken(char *item, char search){
     char **ret = (char **)malloc(sizeof(char*)*1024);
@@ -45,7 +43,9 @@ char ** strtoken(char *item, char search){
             n++;
         }
     }
-    
+
+    ret[m] = (char *)realloc(ret[m], n+1);
+    ret[m][n] = '\0';
 
     return ret;
         
@@ -54,15 +54,15 @@ char ** strtoken(char *item, char search){
 
 struct document get_document(char* text) {
     struct document* Doc = (struct document*)malloc(sizeof(struct document));
-    Doc->data = (struct paragraph *)malloc(sizeof(struct paragraph)*5);
-    for(int i=0; i<5; i++){
-        Doc->data[i].data = (struct sentence *)calloc(100, sizeof(struct sentence));
-        for(int j=0; j<100; j++){
-            Doc->data[i].data[j].data = (struct word *)calloc(100, sizeof(struct word));
+    Doc->data = (struct paragraph *)malloc(sizeof(struct paragraph)*MAX_PARAGRAPHS);
+    for(int i=0; i<MAX_PARAGRAPHS; i++){
+        Doc->data[i].data = (struct sentence *)calloc(50, sizeof(struct sentence));
+        for(int j=0; j<50; j++){
+            Doc->data[i].data[j].data = (struct word *)calloc(50, sizeof(struct word));
             
-            for(int k =0; k<100; k++){
-                Doc->data[i].data[j].data[k].data = (char*)calloc(100, sizeof(char));
-                memset(Doc->data[i].data[j].data[k].data, '\0', 100);
+            for(int k =0; k<MAX_CHARACTERS; k++){
+                Doc->data[i].data[j].data[k].data = (char*)calloc(MAX_CHARACTERS, sizeof(char));
+                memset(Doc->data[i].data[j].data[k].data, '\0', MAX_CHARACTERS*sizeof(char));
             }
             
         }
@@ -75,7 +75,7 @@ struct document get_document(char* text) {
         
         char **sentence = strtoken(paragraph[i], '.');
         int j=0;
-        while(*sentence[j] != '\0' && *sentence[j] != '\1'){
+        while(*sentence[j] != '\0'){
             
             char **word = strtoken(sentence[j], ' ');
             int k =0;
@@ -83,17 +83,14 @@ struct document get_document(char* text) {
                 
                 Doc->data[i].data[j].word_count +=1;
                 strcpy(Doc->data[i].data[j].data[k].data, (word[k]));
-                //Doc->data[i].data[j].data[k].data = (char *) realloc(Doc->data[i].data[j].data[k].data, k+1*sizeof(char));
                 k++;
             }
             
             Doc->data[i].sentence_count +=1; 
-            //Doc->data[i].data[j].data = (struct word *)realloc(Doc->data[i].data[j].data, j+1*sizeof(struct word));
             j++;
         }
         
         Doc->paragraph_count += 1;
-        //Doc->data[i].data = (struct sentence *)realloc(Doc->data[i].data, i+1*sizeof(struct sentence));
         i++;  
     }
     
@@ -111,6 +108,7 @@ struct sentence kth_sentence_in_mth_paragraph(struct document Doc, int k, int m)
 struct paragraph kth_paragraph(struct document Doc, int k) {
     return Doc.data[k-1];
 }
+
 
 void print_word(struct word w) {
     printf("%s", w.data);
