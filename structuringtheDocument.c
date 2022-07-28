@@ -25,22 +25,30 @@ struct document {
 };
 
 char ** strtoken(char *item, char search){
-    char **ret = (char **)malloc(sizeof(char*)*1024);
+    char **ret = (char **)calloc(1024, sizeof(char*));
     for(int i = 0; i<1024; i++){
-        *(ret+i) = (char *)malloc(sizeof(char)*1024);
+        *(ret+i) = (char *)calloc(1024, sizeof(char));
     }
     int m = 0;
     int n = 0;
 
-    for(int i=0; *(item+i)!='\0'; i++){
+    for(int i=0; (*(item+i)!='\0'); i++){
+        
+        int asd = 0;
+        if (*(item+i)<31 || *(item+i)>126){
+            
+            asd = 1;
+        }
         
         if(*(item+i) == search){
             m++;
             n=0;
         }else{
-            ret[m] = (char *)realloc(ret[m], n+1);
-            ret[m][n] = *(item+i);
-            n++;
+            if(asd!=1){
+                ret[m] = (char *)realloc(ret[m], n+1);
+                ret[m][n] = *(item+i);
+                n++;
+            }
         }
     }
 
@@ -83,6 +91,7 @@ struct document get_document(char* text) {
                 
                 Doc->data[i].data[j].word_count +=1;
                 strcpy(Doc->data[i].data[j].data[k].data, (word[k]));
+                
                 k++;
             }
             
